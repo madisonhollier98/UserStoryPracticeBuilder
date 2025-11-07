@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Story Builder</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', 'Monaco', monospace;
+      background: linear-gradient(135deg, #007eb4 0%, #005a82 100%);
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 2px, transparent 2px),
+        radial-gradient(circle at 80% 50%, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 60px 60px, 40px 40px;
+      pointer-events: none;
+    }
+
+    .container {
+      background: #fefefe;
+      background-image: 
+        linear-gradient(to bottom, transparent 0px, transparent 39px, #e8f4f8 39px, #e8f4f8 41px, transparent 41px);
+      background-size: 100% 41px;
+      border-radius: 8px;
+      box-shadow: 
+        0 0 0 1px #ddd,
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      max-width: 900px;
+      width: 100%;
+      padding: 30px;
+      position: relative;
+    }
+
+    h1 {
+      color: #1a202c;
+      font-size: 2.8rem;
+      margin: 0 0 0.3rem 0;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: #2d3748;
+      font-size: 1rem;
+      margin: 0 0 1.5rem 0;
+    }
+
+    .section {
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      background: rgba(248, 250, 252, 0.8);
+      border-radius: 8px;
+      border-left: 4px solid #007eb4;
+      box-shadow: 0 2px 4px rgba(0, 126, 180, 0.1);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin: 0;
+    }
+
+    .quality-badge {
+      margin-left: auto;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .quality-poor {
+      background: #fed7d7;
+      color: #c53030;
+    }
+
+    .quality-better {
+      background: #feebc8;
+      color: #c05621;
+    }
+
+    .quality-best {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #007eb4;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-family: 'Courier New', 'Monaco', monospace;
+      background: #ffffff;
+      resize: vertical;
+      min-height: 60px;
+      transition: border-color 0.3s ease;
+      line-height: 1.6;
+      color: #2d3748;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #005a82;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 126, 180, 0.2);
+    }
+
+    textarea::placeholder {
+      color: #a0aec0;
+      font-style: italic;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .feedback-poor {
+      background: #fff5f5;
+      border: 1px solid #fc8181;
+      color: #742a2a;
+    }
+
+    .feedback-better {
+      background: #fffaf0;
+      border: 1px solid #f6ad55;
+      color: #7c2d12;
+    }
+
+    .feedback-best {
+      background: #f0fff4;
+      border: 1px solid #68d391;
+      color: #22543d;
+    }
+
+    .feedback strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .examples {
+      margin-top: 0.75rem;
+      padding-left: 1rem;
+    }
+
+    .examples div {
+      margin: 0.4rem 0;
+      font-size: 0.85rem;
+    }
+
+    .analyze-section {
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+
+    .analyze-btn {
+      background: linear-gradient(135deg, #007eb4 0%, #005a82 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 126, 180, 0.3);
+      font-family: 'Courier New', 'Monaco', monospace;
+    }
+
+    .analyze-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 126, 180, 0.4);
+      background: linear-gradient(135deg, #005a82 0%, #004060 100%);
+    }
+
+    .analyze-btn:active {
+      transform: translateY(0);
+    }
+
+    .final-story {
+      background: linear-gradient(135deg, #007eb4 0%, #005a82 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 126, 180, 0.3);
+    }
+
+    .final-story h2 {
+      margin: 0 0 1rem 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .story-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+      font-family: 'Courier New', 'Monaco', monospace;
+      position: relative;
+    }
+
+    .story-text strong {
+      color: #87ceeb;
+      font-weight: bold;
+    }
+
+    .story-text::after {
+      content: '|';
+      animation: blink 1s infinite;
+      color: #87ceeb;
+      font-weight: bold;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .empty-state {
+      color: rgba(255, 255, 255, 0.7);
+      font-style: italic;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Courier New', 'Monaco', monospace;
+      backdrop-filter: blur(10px);
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .copy-btn:active {
+      transform: translateY(0);
+    }
+
+    .copy-success {
+      margin-top: 0.75rem;
+      padding: 0.5rem 1rem;
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 6px;
+      color: #dcfce7;
+      font-size: 0.9rem;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .help-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 2rem;
+      backdrop-filter: blur(5px);
+    }
+
+    .help-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80%;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .help-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .help-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a202c;
+      margin: 0;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #718096;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .close-button:hover {
+      background: #f7fafc;
+      color: #2d3748;
+    }
+
+    .help-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .help-section h3 {
+      color: #007eb4;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem 0;
+    }
+
+    .help-section p {
+      color: #4a5568;
+      line-height: 1.6;
+      margin: 0 0 0.75rem 0;
+    }
+
+    .help-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .help-list li {
+      color: #4a5568;
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .help-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #007eb4;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 2rem 1.5rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .section {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.3rem;">
+    <h1 id="page-title">User Story Builder</h1><button id="help-button" style="background: rgba(0, 126, 180, 0.1); border: 1px solid #007eb4; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #007eb4; font-size: 1rem; font-weight: bold; transition: all 0.3s ease;" onmouseover="this.style.background='#007eb4'; this.style.color='white';" onmouseout="this.style.background='rgba(0, 126, 180, 0.1)'; this.style.color='#007eb4';">?</button>
+   </div>
+   <p class="subtitle" id="instructions-text">Fill in each section to create your user story. Get real-time feedback to improve your story quality!</p>
+   <div class="section" id="role-section">
+    <div class="section-header">
+     <h2 class="section-title">Role</h2><span class="quality-badge" id="role-badge">Not Started</span>
+    </div><label for="role-input">As a...</label> <textarea id="role-input" placeholder="e.g., primary care physician using a mobile device"></textarea>
+   </div>
+   <div class="section" id="goal-section">
+    <div class="section-header">
+     <h2 class="section-title">Goal</h2><span class="quality-badge" id="goal-badge">Not Started</span>
+    </div><label for="goal-input">I want to...</label> <textarea id="goal-input" placeholder="e.g., receive step-by-step training on how to associate a diagnosis with multiple orders"></textarea>
+   </div>
+   <div class="section" id="reason-section">
+    <div class="section-header">
+     <h2 class="section-title">Reason</h2><span class="quality-badge" id="reason-badge">Not Started</span>
+    </div><label for="reason-input">So that...</label> <textarea id="reason-input" placeholder="e.g., I can quickly associate the correct diagnosis with all of the patient's orders"></textarea>
+   </div>
+   <div class="analyze-section"><button id="analyze-button" class="analyze-btn"> 🔍 Analyze &amp; Get Feedback </button>
+   </div>
+   <div class="final-story">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+     <h2 style="margin: 0;">📝 Your Complete User Story</h2><button id="copy-button" class="copy-btn" style="display: none;"> 📋 Copy Story </button>
+    </div>
+    <div class="story-text" id="complete-story"><span class="empty-state">Start filling in the sections above to see your user story take shape...</span>
+    </div>
+    <div id="copy-success" class="copy-success" style="display: none;">
+     ✅ Story copied to clipboard!
+    </div>
+   </div>
+   <div id="feedback-section" style="display: none;">
+    <h2 style="color: #1a202c; font-size: 1.5rem; margin: 1.5rem 0 0.75rem 0; font-weight: 600;">📊 Overall Analysis</h2>
+    <div class="overall-feedback">
+     <div class="score-display" style="display: flex; align-items: center; margin-bottom: 1rem;">
+      <div class="score-circles" style="display: flex; gap: 0.5rem; margin-right: 1rem;">
+       <div class="score-circle" id="role-circle" style="width: 20px; height: 20px; border-radius: 50%; background: #e2e8f0;"></div>
+       <div class="score-circle" id="goal-circle" style="width: 20px; height: 20px; border-radius: 50%; background: #e2e8f0;"></div>
+       <div class="score-circle" id="reason-circle" style="width: 20px; height: 20px; border-radius: 50%; background: #e2e8f0;"></div>
+      </div><span style="color: #4a5568; font-size: 0.9rem;">Role • Goal • Reason</span>
+     </div>
+     <div class="feedback" id="overall-feedback-content" style="display: none;"></div>
+    </div>
+   </div><!-- Help Modal -->
+   <div id="help-modal" class="help-modal" style="display: none;">
+    <div class="help-content">
+     <div class="help-header">
+      <h2 class="help-title">📚 What are User Stories?</h2><button id="close-help" class="close-button">×</button>
+     </div>
+     <div class="help-section">
+      <h3>🎯 What is a User Story?</h3>
+      <p>A user story is a simple description of a feature or requirement from the perspective of the person who will use it. It follows the format: <strong>"As a [role], I want to [goal], so that [reason]."</strong></p>
+     </div>
+     <div class="help-section">
+      <h3>🤔 Why Do We Create User Stories?</h3>
+      <p>User stories help us understand what users really need and why they need it. They shift focus from technical features to human outcomes and ensure we build solutions that actually solve real problems.</p>
+     </div>
+     <div class="help-section">
+      <h3>🏥 Purpose in Healthcare Training</h3>
+      <p>For EHR and healthcare training, user stories are especially valuable because they help us:</p>
+      <ul class="help-list">
+       <li>Understand workflow context: See how EHR features fit into clinical practice</li>
+       <li>Prioritize training content: Focus on what matters most to users</li>
+       <li>Design scenario-based learning: Create realistic, relevant examples</li>
+       <li>Measure success: Define what good performance looks like</li>
+       <li>Communicate with stakeholders: Bridge the gap between clinical and technical teams</li>
+      </ul>
+     </div>
+     <div class="help-section">
+      <h3>💡 Example</h3>
+      <p><strong>Good user story:</strong><br>
+        "As a <em>primary care physician using a tablet during patient rounds</em>, I want to <em>receive step-by-step guidance on associating diagnoses with multiple orders</em>, so that <em>I can quickly and accurately complete documentation without delaying patient care</em>."</p>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      page_title: "User Story Builder",
+      instructions_text: "Fill in each section to create your user story. Get real-time feedback to improve your story quality!"
+    };
+
+    const roleInput = document.getElementById('role-input');
+    const goalInput = document.getElementById('goal-input');
+    const reasonInput = document.getElementById('reason-input');
+
+    function analyzeRole(text) {
+      if (!text.trim()) return null;
+      
+      const isGeneric = /\b(user|person|someone|people|individual|employee|staff member|doctor|nurse|physician|manager|administrator)\b/i.test(text);
+      const hasSpecificRole = text.trim().length > 10 && !isGeneric;
+      const hasContext = /\b(using|in|at|with|on|mobile|desktop|tablet|new|experienced|senior|junior)\b/i.test(text);
+      const wordCount = text.trim().split(/\s+/).length;
+
+      if (isGeneric || wordCount < 3) {
+        return { quality: 'poor' };
+      } else if (hasSpecificRole && hasContext && wordCount >= 5) {
+        return { quality: 'best' };
+      } else {
+        return { quality: 'better' };
+      }
+    }
+
+    function analyzeGoal(text) {
+      if (!text.trim()) return null;
+      
+      const wordCount = text.trim().split(/\s+/).length;
+      const hasVagueTerms = /\b(know|understand|train)\b/i.test(text);
+      const isUserAction = /\b(receive|learn|view|access|complete|associate|enter|review|update|create|manage|perform|execute|get|obtain)\b/i.test(text);
+      const hasTrainingContext = /\b(training|guidance|instructions|steps|how to|tutorial|learn|help|support)\b/i.test(text);
+      const isSystemFocused = /\b(system|epic|application|software|tool)\s+(should|will|can|to)\b/i.test(text);
+      const isGeneric = /\b(use the system|access the application|work with|do my work)\b/i.test(text);
+
+      // Special case for short goals with vague terms
+      if (wordCount < 3 && hasVagueTerms) {
+        return { quality: 'poor', specialCase: 'vague_short' };
+      }
+
+      if (isSystemFocused || isGeneric || wordCount < 5) {
+        return { quality: 'poor' };
+      } else if (isUserAction && hasTrainingContext && wordCount >= 8) {
+        return { quality: 'best' };
+      } else if (isUserAction && wordCount >= 5) {
+        return { quality: 'better' };
+      } else {
+        return { quality: 'poor' };
+      }
+    }
+
+    function analyzeReason(text) {
+      if (!text.trim()) return null;
+      
+      const hasBenefit = /\b(quickly|efficiently|accurately|easily|correctly|safely|effectively|confidently|consistently|better)\b/i.test(text);
+      const hasOutcome = /\b(improve|reduce|increase|ensure|provide|deliver|maintain|enhance|optimize|streamline|save|prevent)\b/i.test(text);
+      const hasImpact = /\b(patient|care|workflow|time|errors|quality|safety|compliance|productivity|cost|revenue)\b/i.test(text);
+      const isTaskFocused = /\b(complete|finish|do|perform)\s+(my|the)\s+(work|task|job|documentation)\b/i.test(text);
+      const isGeneric = /\b(get things done|do my job|use the system|work better|be more productive)\b/i.test(text);
+      const wordCount = text.trim().split(/\s+/).length;
+
+      if (isGeneric || isTaskFocused || wordCount < 5) {
+        return { quality: 'poor' };
+      } else if (hasBenefit && hasOutcome && hasImpact && wordCount >= 8) {
+        return { quality: 'best' };
+      } else if ((hasBenefit || hasOutcome) && wordCount >= 5) {
+        return { quality: 'better' };
+      } else {
+        return { quality: 'poor' };
+      }
+    }
+
+    function generateOverallFeedback(roleAnalysis, goalAnalysis, reasonAnalysis) {
+      const scores = [roleAnalysis, goalAnalysis, reasonAnalysis].filter(a => a !== null);
+      if (scores.length === 0) return null;
+
+      // Check for special case of vague short goal
+      if (goalAnalysis && goalAnalysis.specialCase === 'vague_short') {
+        return {
+          quality: 'poor',
+          message: '⚠️ Your goal is too vague and not action-oriented. Goals like "know", "understand", or "train" must be specific and actionable.',
+          suggestions: [
+            '🔧 Replace vague terms: Instead of "know" → "learn how to perform specific task"',
+            '🔧 Replace vague terms: Instead of "understand" → "receive step-by-step guidance on"',
+            '🔧 Replace vague terms: Instead of "train" → "complete hands-on training to"',
+            '🔧 Be specific about what exactly the user needs to accomplish',
+            '🔧 Focus on the specific action or skill the user will gain'
+          ]
+        };
+      }
+
+      const bestCount = scores.filter(s => s.quality === 'best').length;
+      const betterCount = scores.filter(s => s.quality === 'better').length;
+      const poorCount = scores.filter(s => s.quality === 'poor').length;
+
+      let overallQuality, message, suggestions;
+
+      if (bestCount >= 2 && poorCount === 0) {
+        overallQuality = 'best';
+        message = '🎉 Excellent user story! Your story is specific, action-oriented, and clearly explains the benefit.';
+        suggestions = [
+          '✓ Role is specific and provides good context',
+          '✓ Goal focuses on user actions and learning needs', 
+          '✓ Reason explains clear benefits and positive impact',
+          '💡 Consider if any additional context would help developers understand the requirements better'
+        ];
+      } else if (bestCount >= 1 && poorCount <= 1) {
+        overallQuality = 'better';
+        message = '👍 Good user story with room for improvement. Focus on being more specific and action-oriented.';
+        suggestions = [
+          '💡 Make your role more specific - avoid generic terms like "user", "doctor", "nurse". Be specific about the role and give it context.',
+          '💡 Focus your goal on what the user needs to learn or do, not what the system should provide',
+          '💡 Explain the specific benefit or positive impact in your reason',
+          '💡 Add more context about the situation, device, or environment'
+        ];
+      } else {
+        overallQuality = 'poor';
+        message = '⚠️ Your user story needs more specificity and focus on user actions and benefits.';
+        suggestions = [
+          '🔧 Be specific about the exact role - avoid "user", "doctor", "nurse". Be specific about the role and give it context.',
+          '🔧 Focus on what the user wants to learn or accomplish, not what the system should do',
+          '🔧 Explain the benefit or positive impact, not just task completion',
+          '🔧 Add context like device type, experience level, or work environment'
+        ];
+      }
+
+      return { quality: overallQuality, message, suggestions };
+    }
+
+    function updateFeedback(inputId, analysis) {
+      const badge = document.getElementById(`${inputId}-badge`);
+      const circle = document.getElementById(`${inputId}-circle`);
+
+      if (!analysis) {
+        badge.style.display = 'none';
+        circle.style.background = '#e2e8f0';
+        return;
+      }
+
+      badge.style.display = 'block';
+
+      const qualityText = analysis.quality.charAt(0).toUpperCase() + analysis.quality.slice(1);
+      badge.textContent = qualityText;
+      badge.className = `quality-badge quality-${analysis.quality}`;
+
+      // Update circle color
+      if (analysis.quality === 'best') {
+        circle.style.background = '#22c55e'; // Green
+      } else if (analysis.quality === 'better') {
+        circle.style.background = '#eab308'; // Yellow
+      } else {
+        circle.style.background = '#ef4444'; // Red
+      }
+    }
+
+    // Hide badges initially
+    document.getElementById('role-badge').style.display = 'none';
+    document.getElementById('goal-badge').style.display = 'none';
+    document.getElementById('reason-badge').style.display = 'none';
+
+    function updateOverallFeedback(overallAnalysis) {
+      const feedbackContent = document.getElementById('overall-feedback-content');
+      
+      if (!overallAnalysis) {
+        feedbackContent.style.display = 'none';
+        return;
+      }
+
+      feedbackContent.className = `feedback feedback-${overallAnalysis.quality}`;
+      feedbackContent.innerHTML = `
+        <strong>${overallAnalysis.message}</strong>
+        <div class="examples">
+          ${overallAnalysis.suggestions.map(suggestion => `<div>${suggestion}</div>`).join('')}
+        </div>
+      `;
+      feedbackContent.style.display = 'block';
+    }
+
+    function updateCompleteStory() {
+      const role = roleInput.value.trim();
+      const goal = goalInput.value.trim();
+      const reason = reasonInput.value.trim();
+
+      const storyDiv = document.getElementById('complete-story');
+      const copyButton = document.getElementById('copy-button');
+
+      if (!role && !goal && !reason) {
+        storyDiv.innerHTML = '<span class="empty-state">Start filling in the sections above to see your user story take shape...</span>';
+        copyButton.style.display = 'none';
+        return;
+      }
+
+      const rolePart = role ? `<strong>As a</strong> ${role}` : '<em>[Add role]</em>';
+      const goalPart = goal ? `<strong>I want to</strong> ${goal}` : '<em>[Add goal]</em>';
+      const reasonPart = reason ? `<strong>So that</strong> ${reason}` : '<em>[Add reason]</em>';
+
+      storyDiv.innerHTML = `${rolePart},<br>${goalPart},<br>${reasonPart}.`;
+      
+      // Show copy button if there's content
+      if (role || goal || reason) {
+        copyButton.style.display = 'block';
+      }
+    }
+
+    function getPlainTextStory() {
+      const role = roleInput.value.trim();
+      const goal = goalInput.value.trim();
+      const reason = reasonInput.value.trim();
+
+      const rolePart = role ? `As a ${role}` : '[Add role]';
+      const goalPart = goal ? `I want to ${goal}` : '[Add goal]';
+      const reasonPart = reason ? `So that ${reason}` : '[Add reason]';
+
+      return `${rolePart}, ${goalPart}, ${reasonPart}.`;
+    }
+
+    async function copyToClipboard() {
+      const storyText = getPlainTextStory();
+      const copySuccess = document.getElementById('copy-success');
+      
+      try {
+        await navigator.clipboard.writeText(storyText);
+        
+        // Show success message
+        copySuccess.style.display = 'block';
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          copySuccess.style.display = 'none';
+        }, 3000);
+        
+      } catch (err) {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = storyText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        // Show success message
+        copySuccess.style.display = 'block';
+        setTimeout(() => {
+          copySuccess.style.display = 'none';
+        }, 3000);
+      }
+    }
+
+    roleInput.addEventListener('input', updateCompleteStory);
+    goalInput.addEventListener('input', updateCompleteStory);
+    reasonInput.addEventListener('input', updateCompleteStory);
+
+    document.getElementById('copy-button').addEventListener('click', copyToClipboard);
+
+    // Help modal functionality
+    document.getElementById('help-button').addEventListener('click', () => {
+      document.getElementById('help-modal').style.display = 'flex';
+    });
+
+    document.getElementById('close-help').addEventListener('click', () => {
+      document.getElementById('help-modal').style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('help-modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('help-modal')) {
+        document.getElementById('help-modal').style.display = 'none';
+      }
+    });
+
+    document.getElementById('analyze-button').addEventListener('click', () => {
+      const roleAnalysis = analyzeRole(roleInput.value);
+      const goalAnalysis = analyzeGoal(goalInput.value);
+      const reasonAnalysis = analyzeReason(reasonInput.value);
+      
+      updateFeedback('role', roleAnalysis);
+      updateFeedback('goal', goalAnalysis);
+      updateFeedback('reason', reasonAnalysis);
+      
+      // Generate and show overall feedback
+      const overallAnalysis = generateOverallFeedback(roleAnalysis, goalAnalysis, reasonAnalysis);
+      updateOverallFeedback(overallAnalysis);
+      
+      // Show the main feedback section
+      document.getElementById('feedback-section').style.display = 'block';
+    });
+
+    async function onConfigChange(config) {
+      const titleElement = document.getElementById('page-title');
+      const instructionsElement = document.getElementById('instructions-text');
+      
+      titleElement.textContent = config.page_title || defaultConfig.page_title;
+      instructionsElement.textContent = config.instructions_text || defaultConfig.instructions_text;
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["page_title", config.page_title || defaultConfig.page_title],
+          ["instructions_text", config.instructions_text || defaultConfig.instructions_text]
+        ])
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'999de788e0686b95',t:'MTc2MjM2MTk5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
